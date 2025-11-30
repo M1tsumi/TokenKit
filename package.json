@@ -1,6 +1,6 @@
 {
   "name": "@quefep/theme-kit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "A cross-framework, framework-agnostic SDK for managing design tokens in modern web applications",
   "main": "dist/index.js",
@@ -9,7 +9,13 @@
   "bin": {
     "theme-kit": "dist/cli.js"
   },
-  "files": ["dist", "react", "vue", "angular", "vanilla"],
+  "files": [
+    "dist",
+    "react",
+    "vue",
+    "angular",
+    "vanilla"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.esm.js",
@@ -52,7 +58,19 @@
     "version": "npm run build",
     "postversion": "git push && git push --tags"
   },
-  "keywords": ["design-tokens", "theme", "theming", "design-system", "react", "vue", "angular", "typescript", "css", "scss", "tokens"],
+  "keywords": [
+    "design-tokens",
+    "theme",
+    "theming",
+    "design-system",
+    "react",
+    "vue",
+    "angular",
+    "typescript",
+    "css",
+    "scss",
+    "tokens"
+  ],
   "author": "ThemeKit Contributors",
   "license": "MIT",
   "repository": {
@@ -92,9 +110,15 @@
     "@angular/core": ">=12.0.0"
   },
   "peerDependenciesMeta": {
-    "react": {"optional": true},
-    "vue": {"optional": true},
-    "@angular/core": {"optional": true}
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    },
+    "@angular/core": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=14.0.0"
