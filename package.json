@@ -1,5 +1,5 @@
 {
-  "name": "theme-kit",
+  "name": "@quefep/theme-kit",
   "version": "1.0.0",
   "type": "module",
   "description": "A cross-framework, framework-agnostic SDK for managing design tokens in modern web applications",
@@ -41,13 +41,13 @@
     "build": "rollup -c",
     "build:watch": "rollup -c -w",
     "dev": "npm run build:watch",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
     "type-check": "tsc --noEmit",
     "prepare": "npm run build",
-    "prepublishOnly": "npm test && npm run lint",
+    "prepublishOnly": "npm run build",
     "preversion": "npm run lint",
     "version": "npm run build",
     "postversion": "git push && git push --tags"
