@@ -1,0 +1,102 @@
+{
+  "name": "theme-kit",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "A cross-framework, framework-agnostic SDK for managing design tokens in modern web applications",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "theme-kit": "dist/cli.js"
+  },
+  "files": ["dist", "react", "vue", "angular", "vanilla"],
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./react": {
+      "import": "./react/index.esm.js",
+      "require": "./react/index.js",
+      "types": "./react/index.d.ts"
+    },
+    "./vue": {
+      "import": "./vue/index.esm.js",
+      "require": "./vue/index.js",
+      "types": "./vue/index.d.ts"
+    },
+    "./angular": {
+      "import": "./angular/index.esm.js",
+      "require": "./angular/index.js",
+      "types": "./angular/index.d.ts"
+    },
+    "./vanilla": {
+      "import": "./vanilla/index.esm.js",
+      "require": "./vanilla/index.js",
+      "types": "./vanilla/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "build:watch": "rollup -c -w",
+    "dev": "npm run build:watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "npm run build",
+    "postversion": "git push && git push --tags"
+  },
+  "keywords": ["design-tokens", "theme", "theming", "design-system", "react", "vue", "angular", "typescript", "css", "scss", "tokens"],
+  "author": "ThemeKit Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/themekit/theme-kit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/themekit/theme-kit/issues"
+  },
+  "homepage": "https://github.com/themekit/theme-kit#readme",
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.0",
+    "@rollup/plugin-json": "^6.0.0",
+    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@rollup/plugin-babel": "^6.0.0",
+    "@babel/core": "^7.22.0",
+    "@babel/preset-react": "^7.22.0",
+    "@babel/preset-typescript": "^7.22.0",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "chokidar": "^3.5.3",
+    "commander": "^11.0.0",
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0",
+    "rollup": "^3.20.0",
+    "rollup-plugin-dts": "^5.3.0",
+    "ts-jest": "^29.1.0",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "vue": ">=3.0.0",
+    "@angular/core": ">=12.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {"optional": true},
+    "vue": {"optional": true},
+    "@angular/core": {"optional": true}
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
