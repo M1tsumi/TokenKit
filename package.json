@@ -57,12 +57,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/themekit/theme-kit.git"
+    "url": "https://github.com/M1tsumi/Theme-Kit.git"
   },
   "bugs": {
-    "url": "https://github.com/themekit/theme-kit/issues"
+    "url": "https://github.com/M1tsumi/Theme-Kit/issues"
   },
-  "homepage": "https://github.com/themekit/theme-kit#readme",
+  "homepage": "https://github.com/M1tsumi/Theme-Kit#readme",
   "devDependencies": {
     "@rollup/plugin-commonjs": "^25.0.0",
     "@rollup/plugin-json": "^6.0.0",

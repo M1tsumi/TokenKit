@@ -274,14 +274,14 @@ export const tokens: DesignTokens = {
 
 ```bash
 npx theme-kit validate
-# ✅ Tokens are valid!
+# Tokens are valid!
 ```
 
 ### Initialize a New Project
 
 ```bash
 npx theme-kit init --template basic
-# ✅ Initialized ThemeKit project with basic template
+# Initialized ThemeKit project with basic template
 ```
 
 ## ⚙️ Configuration
