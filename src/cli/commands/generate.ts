@@ -1,5 +1,5 @@
-import { ThemeKit } from '../../core/ThemeKit';
 import { DesignTokens } from '../../types';
+import { resolveAliases } from '../../utils/aliases';
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { watch } from 'chokidar';
@@ -11,10 +11,11 @@ interface GenerateOptions {
   theme?: string;
   prefix?: string;
   watch?: boolean;
+  resolveAliases?: boolean;
 }
 
 export async function generateCommand(options: GenerateOptions): Promise<void> {
-  const { format, input, output, theme, prefix = 'tk', watch: watchMode } = options;
+  const { format, input, output, theme, prefix = 'tk', watch: watchMode, resolveAliases: shouldResolveAliases } = options;
 
   if (!existsSync(input)) {
     console.error(`❌ Input file not found: ${input}`);
@@ -24,7 +25,18 @@ export async function generateCommand(options: GenerateOptions): Promise<void> {
   const generate = () => {
     try {
       const tokensContent = readFileSync(input, 'utf-8');
-      const tokens: DesignTokens = JSON.parse(tokensContent);
+      let tokens: DesignTokens = JSON.parse(tokensContent);
+      
+      // Resolve aliases if requested
+      if (shouldResolveAliases) {
+        try {
+          tokens = resolveAliases(tokens);
+          console.log('✅ Aliases resolved');
+        } catch (err) {
+          console.error('❌ Error resolving aliases:', err);
+          process.exit(1);
+        }
+      }
       
       if (!existsSync(output)) {
         mkdirSync(output, { recursive: true });
