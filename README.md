@@ -12,6 +12,8 @@ If you've ever had to update a primary color in 47 different files, you know the
 - Light/dark mode with persistence built in
 - CLI to spit out CSS variables, SCSS, TypeScript—whatever you need
 - Validation so your tokens stay consistent
+- Runtime alias resolution with circular reference protection (opt-in)
+- Prefetch + cache themes so switches stay instant
 
 ## Install
 
@@ -23,7 +25,7 @@ npm install @quefep/theme-kit
 
 ### 1. Set up your tokens
 
-Create a `tokens.json`:
+Create a `tokens.json` (you can also pass a JS object or a map of theme names ➝ tokens straight into the config):
 
 ```json
 {
@@ -176,6 +178,31 @@ Reference other tokens using curly braces. Keeps things DRY:
 
 Aliases get resolved at build time or runtime—your call.
 
+Enable runtime aliasing when you spin up `ThemeKit`:
+
+```ts
+const theme = new ThemeKit({
+  tokens,
+  aliasing: {
+    enabled: true,
+    maxDepth: 15,
+  },
+});
+```
+
+ThemeKit will validate references, prevent circular lookups, and cache the resolved map per theme.
+
+## Prefetch & Cache Themes
+
+ThemeKit now caches resolved tokens and lets you warm them up ahead of time:
+
+```ts
+theme.prefetchThemes();          // prefetch everything
+theme.prefetchThemes(['dark']);  // or target a subset
+```
+
+Combine this with the built-in cache to keep theme switches snappy even with massive token graphs.
+
 ## Color Utilities
 
 Built-in functions for color manipulation:
@@ -241,6 +268,10 @@ Drop a `themekit.config.js` in your project root:
 module.exports = {
   tokens: './tokens.json',
   defaultTheme: 'light',
+  aliasing: {
+    enabled: true,
+    maxDepth: 10,
+  },
   persistence: {
     enabled: true,
     key: 'themekit-theme',
@@ -280,6 +311,7 @@ theme.getCurrentTheme();      // 'dark'
 theme.getCurrentTokens();     // { colors: {...}, ... }
 theme.getToken('colors.primary');
 theme.getAvailableThemes();   // ['light', 'dark']
+theme.prefetchThemes();       // Warm up caches for one or more themes
 theme.addThemeChangeListener((name, tokens) => { ... });
 theme.validateTokens(tokens); // { valid: true, errors: [] }
 ```

@@ -1,6 +1,9 @@
+import { DesignTokens } from './tokens';
+
 export interface ThemeKitConfig {
-  tokens?: string | object;
+  tokens?: string | DesignTokens | Record<string, DesignTokens>;
   defaultTheme?: string;
+  aliasing?: AliasingConfig;
   persistence?: {
     enabled?: boolean;
     key?: string;
@@ -22,6 +25,11 @@ export interface ThemeKitConfig {
     format?: 'json' | 'css' | 'scss' | 'ts' | 'js';
     watch?: boolean;
   };
+}
+
+export interface AliasingConfig {
+  enabled?: boolean;
+  maxDepth?: number;
 }
 
 export interface ValidationRule {

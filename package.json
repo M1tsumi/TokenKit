@@ -1,6 +1,6 @@
 {
   "name": "@quefep/theme-kit",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "type": "module",
   "description": "A cross-framework, framework-agnostic SDK for managing design tokens in modern web applications",
   "main": "dist/index.js",

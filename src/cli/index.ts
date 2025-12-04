@@ -11,7 +11,7 @@ const program = new Command();
 program
   .name('theme-kit')
   .description('CLI tool for managing design tokens')
-  .version('1.1.0');
+  .version('1.2.0');
 
 program
   .command('init')

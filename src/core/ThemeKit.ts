@@ -1,4 +1,5 @@
 import { DesignTokens, ThemeConfig, ThemeRegistry, ThemeKitConfig } from '../types';
+import { resolveAliases } from '../utils/aliases';
 
 export type { DesignTokens, ThemeConfig, ThemeRegistry, ThemeKitConfig };
 
@@ -7,34 +8,52 @@ export class ThemeKit {
   private currentTheme: string = '';
   private config: Required<ThemeKitConfig>;
   private listeners: Set<(theme: string, tokens: DesignTokens) => void> = new Set();
+  private resolvedTokenCache: Map<string, DesignTokens> = new Map();
 
   constructor(config: ThemeKitConfig = {}) {
+    const {
+      tokens,
+      defaultTheme = 'default',
+      aliasing = {},
+      persistence = {},
+      validation = {},
+      cli = {},
+    } = config;
+
     this.config = {
-      tokens: {},
-      defaultTheme: 'default',
+      tokens: tokens ?? {},
+      defaultTheme,
+      aliasing: {
+        enabled: aliasing?.enabled ?? false,
+        maxDepth: aliasing?.maxDepth ?? 10,
+      },
       persistence: {
-        enabled: true,
-        key: 'themekit-theme',
-        storage: 'localStorage',
+        enabled: persistence?.enabled ?? true,
+        key: persistence?.key ?? 'themekit-theme',
+        storage: persistence?.storage ?? 'localStorage',
         customStorage: {
           get: () => null,
           set: () => {},
           remove: () => {},
+          ...(persistence?.customStorage ?? {}),
         },
       },
       validation: {
-        enabled: true,
-        strict: false,
-        rules: [],
+        enabled: validation?.enabled ?? true,
+        strict: validation?.strict ?? false,
+        rules: validation?.rules ?? [],
       },
       cli: {
-        inputFile: './tokens.json',
-        outputFile: './dist',
-        format: 'json',
-        watch: false,
+        inputFile: cli?.inputFile ?? './tokens.json',
+        outputFile: cli?.outputFile ?? './dist',
+        format: cli?.format ?? 'json',
+        watch: cli?.watch ?? false,
       },
-      ...config,
     };
+
+    if (tokens) {
+      this.bootstrapTokens(tokens);
+    }
 
     this.loadInitialTheme();
   }
@@ -85,6 +104,7 @@ export class ThemeKit {
 
   registerTheme(theme: ThemeConfig): void {
     this.themes[theme.name] = theme;
+    this.invalidateCache(theme.name);
     
     // If this is the first theme and no default is set, make it default
     if (Object.keys(this.themes).length === 1 && !this.currentTheme) {
@@ -99,6 +119,7 @@ export class ThemeKit {
   unregisterTheme(themeName: string): void {
     if (this.themes[themeName]) {
       delete this.themes[themeName];
+      this.invalidateCache(themeName);
       
       // If we removed the current theme, switch to default
       if (this.currentTheme === themeName) {
@@ -132,12 +153,29 @@ export class ThemeKit {
   }
 
   private resolveTokens(theme: ThemeConfig): DesignTokens {
+    const isRegisteredTheme = this.themes[theme.name] === theme;
+
+    if (isRegisteredTheme) {
+      const cached = this.resolvedTokenCache.get(theme.name);
+      if (cached) {
+        return cached;
+      }
+    }
+
     let tokens = { ...theme.tokens };
     
     // Handle theme extension
     if (theme.extends && this.themes[theme.extends]) {
       const parentTokens = this.resolveTokens(this.themes[theme.extends]);
       tokens = this.mergeTokens(parentTokens, tokens);
+    }
+
+    if (this.config.aliasing.enabled) {
+      tokens = resolveAliases(tokens, this.config.aliasing.maxDepth);
+    }
+
+    if (isRegisteredTheme) {
+      this.resolvedTokenCache.set(theme.name, tokens);
     }
     
     return tokens;
@@ -195,6 +233,22 @@ export class ThemeKit {
 
   getAvailableThemes(): string[] {
     return Object.keys(this.themes);
+  }
+
+  prefetchThemes(themeNames?: string[]): void {
+    const targets = themeNames && themeNames.length > 0 ? themeNames : this.getAvailableThemes();
+    targets.forEach(themeName => {
+      const theme = this.themes[themeName];
+      if (!theme) {
+        return;
+      }
+
+      try {
+        this.resolveTokens(theme);
+      } catch (error) {
+        console.warn(`[ThemeKit] Failed to prefetch theme "${themeName}":`, error);
+      }
+    });
   }
 
   addThemeChangeListener(listener: (theme: string, tokens: DesignTokens) => void): () => void {
@@ -270,5 +324,52 @@ export class ThemeKit {
       tokens,
     });
     return themeKit;
+  }
+
+  private invalidateCache(themeName?: string): void {
+    if (themeName) {
+      this.resolvedTokenCache.delete(themeName);
+      return;
+    }
+    this.resolvedTokenCache.clear();
+  }
+
+  private bootstrapTokens(tokensSource: ThemeKitConfig['tokens']): void {
+    if (!tokensSource) {
+      return;
+    }
+
+    if (typeof tokensSource === 'string') {
+      console.warn('[ThemeKit] Loading tokens from file paths at runtime is not supported.');
+      return;
+    }
+
+    if (this.isDesignTokensObject(tokensSource)) {
+      const initialName = this.config.defaultTheme || 'default';
+      this.registerTheme({ name: initialName, tokens: tokensSource });
+      return;
+    }
+
+    if (this.isTokenDictionary(tokensSource)) {
+      Object.entries(tokensSource).forEach(([themeName, themeTokens]) => {
+        this.registerTheme({ name: themeName, tokens: themeTokens });
+      });
+    }
+  }
+
+  private isPlainObject(value: unknown): value is Record<string, unknown> {
+    return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+  }
+
+  private isDesignTokensObject(value: unknown): value is DesignTokens {
+    return this.isPlainObject(value);
+  }
+
+  private isTokenDictionary(value: unknown): value is Record<string, DesignTokens> {
+    if (!this.isPlainObject(value)) {
+      return false;
+    }
+
+    return Object.values(value).every(entry => this.isDesignTokensObject(entry));
   }
 }
